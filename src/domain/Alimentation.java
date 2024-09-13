@@ -4,12 +4,12 @@ import java.time.LocalDate;
 
 public class Alimentation extends Consomation{
     private Double poids;
-    private  TypeAliment type;
+    private  TypeAliment typeA;
 
-    public Alimentation(int value, LocalDate startDate, LocalDate endDate, Double poids, TypeAliment type) {
-        super(value, startDate, endDate);
+    public Alimentation(int value, LocalDate startDate, LocalDate endDate, Double poids, TypeAliment typeA, int type) {
+        super(value, startDate, endDate, type);
         this.poids = poids;
-        this.type = type;
+        this.typeA = typeA;
     }
 
     public Double getPoids() {
@@ -21,11 +21,11 @@ public class Alimentation extends Consomation{
     }
 
 public TypeAliment getTypeA() {
-        return type;
+        return typeA;
     }
 
     public void setTypeAliment(TypeAliment typeAliment) {
-        this.type = type;
+        this.typeA = typeA;
     }
 
     @Override

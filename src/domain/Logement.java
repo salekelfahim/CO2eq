@@ -4,22 +4,22 @@ import java.time.LocalDate;
 
 public class Logement extends Consomation{
 
-    private TypeEnergie type;
+    private TypeEnergie typeE;
     private Double energie;
 
 
-    public Logement(int value, LocalDate startDate, LocalDate endDate, TypeEnergie typeEnergie, Double energie) {
-        super(value, startDate, endDate);
-        this.type = type;
+    public Logement(int value, LocalDate startDate, LocalDate endDate, TypeEnergie typeEnergie, Double energie, int type) {
+        super(value, startDate, endDate, type);
+        this.typeE = typeE;
         this.energie = energie;
     }
 
     public TypeEnergie getTypeE() {
-        return type;
+        return typeE;
     }
 
     public void setType(TypeEnergie type) {
-        this.type = type;
+        this.typeE = typeE;
     }
 
     public Double getEnergie() {

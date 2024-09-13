@@ -4,12 +4,12 @@ import java.time.LocalDate;
 
 public class Transport extends Consomation{
     private double distance;
-    private TypeVehicule type;
+    private TypeVehicule typeV;
 
-    public Transport(int value, LocalDate startDate, LocalDate endDate, double distance, TypeVehicule type) {
-        super(value, startDate, endDate);
+    public Transport(int value, LocalDate startDate, LocalDate endDate, double distance, TypeVehicule typeV, int type) {
+        super(value, startDate, endDate, type);
         this.distance = distance;
-        this.type = type;
+        this.typeV = typeV;
     }
 
     public double getDistance() {
@@ -21,11 +21,11 @@ public class Transport extends Consomation{
     }
 
     public TypeVehicule getTypeV() {
-        return type;
+        return typeV;
     }
 
     public void setType(TypeVehicule type) {
-        this.type = type;
+        this.typeV = typeV;
     }
 
     @Override

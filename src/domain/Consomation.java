@@ -25,7 +25,7 @@ public abstract class Consomation {
         this.type = type;
     }
 
-    public Consomation(int value, LocalDate startDate, LocalDate endDate) {
+    public Consomation(int value, LocalDate startDate, LocalDate endDate, int type) {
         this.value = value;
         startDate = startDate;
         endDate = endDate;
