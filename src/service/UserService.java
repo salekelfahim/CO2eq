@@ -14,7 +14,7 @@ public class UserService {
     private Connection connection = DatabaseConnection.getInstance().getConnection();
     private UserRepository userRepository;
 
-    public UserService() {
+    public UserService(UserRepository userRepository) {
         this.userRepository = new UserRepository(connection);
     }
 

@@ -1,6 +1,9 @@
 import config.DatabaseConnection;
 import domain.*;
+import repository.ConsomationRepository;
+import repository.UserRepository;
 import service.ConsomationService;
+import service.UserService;
 
 import java.sql.Connection;
 import java.time.LocalDate;
@@ -13,6 +16,11 @@ public class Main {
 
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
         Connection connection = dbConnection.getConnection();
+
+        UserRepository userRepository = new UserRepository(DatabaseConnection.getInstance().getConnection());
+        UserService userService = new UserService(userRepository);
+        ConsomationRepository consomationRepository = new ConsomationRepository(DatabaseConnection.getInstance().getConnection());
+        ConsomationService consomationService = new ConsomationService(userService,consomationRepository);
 
         Scanner inp = new Scanner(System.in);
         int choice;
