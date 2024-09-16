@@ -34,6 +34,10 @@ public class UserService {
 
     }
 
+    public Optional<User> findUserById(int id) throws SQLException {
+        return userRepository.findById(id);
+    }
+
 
     public boolean deleteUser(int id)throws SQLException{
         return userRepository.deleteUser(id);

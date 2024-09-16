@@ -6,6 +6,7 @@ import service.ConsomationService;
 import service.UserService;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Scanner;
@@ -111,7 +112,12 @@ public class Main {
                     }
 
                     if (consomation != null) {
-                        Optional<Consomation> result = ConsomationService.addConsomation(consomation, userId);
+                        Optional<Consomation> result = null;
+                        try {
+                            result = consomationService.addConsomation(consomation, userId);
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
                         if (result.isPresent()) {
                             System.out.println("Consomation added Scfly");
                         } else {

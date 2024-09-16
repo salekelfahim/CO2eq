@@ -4,6 +4,7 @@ import domain.Consomation;
 
 import repository.ConsomationRepository;
 
+import java.sql.SQLException;
 import java.util.Optional;
 
 public class ConsomationService {
@@ -15,11 +16,12 @@ public class ConsomationService {
         this.consomationRepository = consomationRepository;
     }
 
-    public Optional<Consomation> addConsomation(Consomation consomation, User user) {
-        if (user == null) {
+    public Optional<Consomation> addConsomation(Consomation consomation,int userID) throws SQLException {
+        Optional<User> user = userService.findUserById(userID);
+        if (user.isEmpty()){
             return Optional.empty();
         }
-        consomation.setUser(user);
+        consomation.setUser(user.get());
         return consomationRepository.addConsomation(consomation);
     }
 }
