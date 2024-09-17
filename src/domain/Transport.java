@@ -30,6 +30,11 @@ public class Transport extends Consomation{
 
     @Override
     public Double calculImpact() {
-        return null;
+        if (typeV == TypeVehicule.VOITURE) {
+            return distance * 0.5;
+        } else if (typeV == TypeVehicule.TRAIN) {
+            return distance * 0.1;
+        }
+        return 0.0;
     }
 }

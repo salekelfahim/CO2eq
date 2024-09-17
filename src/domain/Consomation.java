@@ -27,8 +27,9 @@ public abstract class Consomation {
 
     public Consomation(int value, LocalDate startDate, LocalDate endDate, int type) {
         this.value = value;
-        startDate = startDate;
-        endDate = endDate;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.type = type;
     }
     public abstract Double calculImpact();
 
@@ -45,7 +46,7 @@ public abstract class Consomation {
     }
 
     public void setStartDate(LocalDate startDate) {
-        startDate = startDate;
+        this.startDate = startDate;
     }
 
     public LocalDate getEndDate() {
@@ -53,7 +54,7 @@ public abstract class Consomation {
     }
 
     public void setEndDate(LocalDate endDate) {
-        endDate = endDate;
+        this.endDate = endDate;
     }
 
     @Override

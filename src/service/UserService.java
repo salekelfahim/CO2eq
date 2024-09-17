@@ -18,13 +18,13 @@ public class UserService {
         this.userRepository = new UserRepository(connection);
     }
 
-    public void addUser(String name, int age)throws SQLException {
+    public void addUser(String name, int age) throws SQLException {
         User nouvUser = new User(name, age);
         userRepository.addUser(nouvUser);
 
     }
 
-    public List<User> afficherUsers() throws SQLException{
+    public List<User> afficherUsers() throws SQLException {
         return userRepository.afficherUsers();
     }
 
@@ -39,23 +39,21 @@ public class UserService {
     }
 
 
-    public boolean deleteUser(int id)throws SQLException{
+    public boolean deleteUser(int id) throws SQLException {
         return userRepository.deleteUser(id);
     }
 
-    public void findById(int id){
-        try{
+    public Optional<User> findById(int id) {
+        try {
             Optional<User> user = userRepository.findById(id);
-            if (user.isPresent()){
-                System.out.println("id : " +user.get().getId() + "name : "+ user.get().getName() + "age : " +user.get().getAge());
-
-            }else {
-                System.out.println("not found : "+id);
+            if (user.isPresent()) {
+                System.out.println("id : " + user.get().getId() + "name : " + user.get().getName() + "age : " + user.get().getAge());
+            } else {
+                System.out.println("not found : " + id);
             }
-
-        }catch (SQLException e){
-            System.out.println("error de affiche user by id "+e.getMessage());
+        } catch (SQLException e) {
+            System.out.println("error de affiche user by id " + e.getMessage());
         }
+        return null;
     }
-
 }

@@ -1,10 +1,10 @@
 package repository;
 
-import domain.Consomation;
-import domain.Alimentation;
-import domain.Transport;
-import domain.Logement;
+import domain.*;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ConsomationRepository {
@@ -55,4 +55,71 @@ public class ConsomationRepository {
         }
         return Optional.empty();
     }
+
+    public List<Consomation> getUserConsomations(User user) throws SQLException {
+        List<Consomation> consomations = new ArrayList<>();
+
+        String transportQuery = "SELECT * FROM transport JOIN consomations ON transport.id = consomations.id WHERE consomations.user_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(transportQuery)) {
+            pstmt.setInt(1, user.getId());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    TypeVehicule typeVehicule = TypeVehicule.valueOf(rs.getString("type").toUpperCase());
+                    Transport transport = new Transport(
+                            rs.getInt("value"),
+                            rs.getDate("start_date").toLocalDate(),
+                            rs.getDate("end_date").toLocalDate(),
+                            rs.getDouble("distance"),
+                            typeVehicule,
+                            1
+                    );
+                    transport.setUser(user);
+                    consomations.add(transport);
+                }
+            }
+        }
+
+        String logementQuery = "SELECT * FROM logement JOIN consomations ON logement.id = consomations.id WHERE consomations.user_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(logementQuery)) {
+            pstmt.setInt(1, user.getId());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    TypeEnergie typeEnergie = TypeEnergie.valueOf(rs.getString("type").toUpperCase());
+                    Logement logement = new Logement(
+                            rs.getInt("value"),
+                            rs.getDate("start_date").toLocalDate(),
+                            rs.getDate("end_date").toLocalDate(),
+                            typeEnergie, // Energy type
+                            rs.getDouble("energie"),
+                            2
+                    );
+                    logement.setUser(user);
+                    consomations.add(logement);
+                }
+            }
+        }
+
+        String alimentationQuery = "SELECT * FROM alimentation JOIN consomations ON alimentation.id = consomations.id WHERE consomations.user_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(alimentationQuery)) {
+            pstmt.setInt(1, user.getId());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    TypeAliment typeAliment = TypeAliment.valueOf(rs.getString("type").toUpperCase());
+                    Alimentation alimentation = new Alimentation(
+                            rs.getInt("value"),
+                            rs.getDate("start_date").toLocalDate(),
+                            rs.getDate("end_date").toLocalDate(),
+                            rs.getDouble("poids"),
+                            typeAliment,
+                            3
+                    );
+                    alimentation.setUser(user);
+                    consomations.add(alimentation);
+                }
+            }
+        }
+
+        return consomations;
+    }
+
 }

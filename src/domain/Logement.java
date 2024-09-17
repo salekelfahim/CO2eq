@@ -32,6 +32,10 @@ public class Logement extends Consomation{
 
     @Override
     public Double calculImpact() {
-        return null;
-    }
-}
+        if (typeE == TypeEnergie.ELECTRICITE) {
+            return energie * 0.5;
+        } else if (typeE == TypeEnergie.GAZ) {
+            return energie * 2.0;
+        }
+        return 0.0;
+    }}

@@ -30,6 +30,10 @@ public TypeAliment getTypeA() {
 
     @Override
     public Double calculImpact() {
-        return null;
-    }
-}
+        if (typeA == TypeAliment.VIANDE) {
+            return poids * 5.0;
+        } else if (typeA == TypeAliment.LEGUME) {
+            return poids * 0.5;
+        }
+        return 0.0;
+    }}
