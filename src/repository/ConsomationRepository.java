@@ -17,11 +17,11 @@ public class ConsomationRepository {
     public Optional<Consomation> addConsomation(Consomation consomation) {
         String sql = null;
         if (consomation instanceof Alimentation) {
-            sql = "INSERT INTO alimentations (value, startdate, enddate, types_consommation_id, user_id, type_aliment, poids) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            sql = "INSERT INTO alimentation (value, start_date, end_date, tconsomation_id, user_id, type, poids) VALUES (?, ?, ?, ?, ?, ?, ?)";
         } else if (consomation instanceof Logement) {
-            sql = "INSERT INTO logement (value, startdate, enddate, types_consommation_id, user_id, type_energie, consommation_energie) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            sql = "INSERT INTO logement (value, start_date, end_date, tconsomation_id, user_id, type, energie) VALUES (?, ?, ?, ?, ?, ?, ?)";
         } else if (consomation instanceof Transport) {
-            sql = "INSERT INTO transport (value, startdate, enddate, types_consommation_id, user_id, distance, type_transport) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            sql = "INSERT INTO transport (value, start_date, end_date, tconsomation_id, user_id, distance, type) VALUES (?, ?, ?, ?, ?, ?, ?)";
         }
 
         if (sql != null) {

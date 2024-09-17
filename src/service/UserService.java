@@ -47,13 +47,14 @@ public class UserService {
         try {
             Optional<User> user = userRepository.findById(id);
             if (user.isPresent()) {
-                System.out.println("id : " + user.get().getId() + "name : " + user.get().getName() + "age : " + user.get().getAge());
+                System.out.println("ID: " + user.get().getId() + ", Name: " + user.get().getName() + ", Age: " + user.get().getAge());
             } else {
-                System.out.println("not found : " + id);
+                System.out.println("User not found with ID: " + id);
             }
+            return user;
         } catch (SQLException e) {
-            System.out.println("error de affiche user by id " + e.getMessage());
+            System.out.println("Error fetching user by ID: " + e.getMessage());
+            return Optional.empty();
         }
-        return null;
     }
 }

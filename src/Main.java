@@ -124,15 +124,13 @@ public class Main {
                     break;
 
                 case 5:
-                    System.out.println("Find User by ID");
+                    System.out.println("==Find User by ID==");
                     System.out.println("Enter user ID:");
                     int idUser = inp.nextInt();
                     inp.nextLine();
-
                     Optional<User> foundUser = userService.findById(idUser);
                     if (foundUser.isPresent()) {
                         User user = foundUser.get();
-                        System.out.println("ID: " + user.getId() + ", Name: " + user.getName() + ", Age: " + user.getAge());
                     } else {
                         System.out.println("User not found.");
                     }

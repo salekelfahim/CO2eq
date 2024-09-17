@@ -73,9 +73,7 @@ public class UserRepository {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
             preparedStatement.setInt(1,id);
-
             try(ResultSet resultSet = preparedStatement.executeQuery()){
-
                 if (resultSet.next()){
                     String name = resultSet.getString("name");
                     int age = resultSet.getInt("age");
@@ -85,9 +83,6 @@ public class UserRepository {
                     return Optional.empty();
                 }
             }
-
         }
-
-
     }
 }
