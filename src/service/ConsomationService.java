@@ -17,7 +17,7 @@ public class ConsomationService {
     private Connection connection;
     private UserRepository userRepository;
 
-    public ConsomationService(UserService userService, ConsomationRepository consomationRepository) {
+    public ConsomationService(UserService userService, ConsomationRepository consomationRepository, Connection connection) {
         this.userService = userService;
         this.consomationRepository = consomationRepository;
         this.connection = connection;
@@ -43,9 +43,9 @@ public class ConsomationService {
     public List<User> CalculConsomationImpact() throws SQLException {
         List<User> users = userRepository.afficherUsers();
         return users.stream()
-                .filter(e -> {
+                .filter(user -> {
                     try {
-                        return calculerImpactTotal(e) > 3000;
+                        return calculerImpactTotal(user) > 3000;
                     } catch (SQLException ex) {
                         ex.printStackTrace();
                         return false;
@@ -54,37 +54,37 @@ public class ConsomationService {
                 .collect(Collectors.toList());
     }
 
-    public double moyenneConsByPeriode(int userId, LocalDate dateDebut, LocalDate dateFin) throws SQLException {
-        if (dateDebut.isAfter(dateFin)) {
-            throw new IllegalArgumentException("Date de début doit être avant la date de fin");
+    public double averageImpactByPeriod(int userId, LocalDate startDate, LocalDate endDate) throws SQLException {
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start date must be before end date.");
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur avec l'ID " + userId + " n'existe pas."));
+                .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
 
-        List<Consomation> consomations = consomationRepository.getUserConsomations(user);
+        List<Consomation> consumptions = consomationRepository.getUserConsomations(user);
 
-        List<LocalDate> dates = DateUtils.dateLitRange(dateDebut, dateFin);
+        List<LocalDate> dates = DateUtils.dateLitRange(startDate, endDate);
 
-        List<Consomation> consomationsPeriode = consomations.stream()
-                .filter(consomation -> !(consomation.getStartDate().isAfter(dateFin) || consomation.getEndDate().isBefore(dateDebut)))
+        List<Consomation> consumptionsInPeriod = consumptions.stream()
+                .filter(consumption -> !(consumption.getStartDate().isAfter(endDate) || consumption.getEndDate().isBefore(startDate)))
                 .collect(Collectors.toList());
 
-        double impactTotal = consomationsPeriode.stream()
+        double totalImpact = consumptionsInPeriod.stream()
                 .mapToDouble(Consomation::calculImpact)
                 .sum();
 
-        return impactTotal / dates.size();
+        return totalImpact / dates.size();
     }
 
-    public List<User> detectInactiveUsers(LocalDate dateDebut, LocalDate dateFin) throws SQLException {
+    public List<User> detectInactiveUsers(LocalDate startDate, LocalDate endDate) throws SQLException {
         List<User> users = userRepository.afficherUsers();
         List<User> inactiveUsers = new ArrayList<>();
 
         for (User user : users) {
-            List<Consomation> consomations = consomationRepository.getUserConsomations(user);
-            boolean isActive = consomations.stream()
-                    .anyMatch(consomation -> !(consomation.getStartDate().isAfter(dateFin) || consomation.getEndDate().isBefore(dateDebut)));
+            List<Consomation> consumptions = consomationRepository.getUserConsomations(user);
+            boolean isActive = consumptions.stream()
+                    .anyMatch(consumption -> !(consumption.getStartDate().isAfter(endDate) || consumption.getEndDate().isBefore(startDate)));
             if (!isActive) {
                 inactiveUsers.add(user);
             }
@@ -92,31 +92,95 @@ public class ConsomationService {
         return inactiveUsers;
     }
 
-    public void rapportConsomationDaily(int userId) throws SQLException {
+    public void generateDailyConsomationReport(int userId) throws SQLException {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur avec l'ID " + userId + " n'existe pas."));
+                .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
 
-        List<Consomation> consomations = consomationRepository.getUserConsomations(user);
+        List<Consomation> consumptions = consomationRepository.getUserConsomations(user);
 
-        if (consomations.isEmpty()) {
-            System.out.println("Pas de consommation pour cet utilisateur " + user.getName());
+        if (consumptions.isEmpty()) {
+            System.out.println("No consomation data for user " + user.getName());
             return;
         }
 
-        consomations.forEach(consomation -> {
-            LocalDate startDate = consomation.getStartDate();
-            LocalDate endDate = consomation.getEndDate();
+        consumptions.forEach(consumption -> {
+            LocalDate startDate = consumption.getStartDate();
+            LocalDate endDate = consumption.getEndDate();
 
-            List<LocalDate> rangeDate = DateUtils.dateLitRange(startDate, endDate);
+            List<LocalDate> dateRange = DateUtils.dateLitRange(startDate, endDate);
 
-            long totalDays = rangeDate.size();
-            double consomationDaily = consomation.getValue() / totalDays;
-            rangeDate.forEach(date ->
-                    System.out.println("Le " + date + ", consommation de " + consomationDaily + " mg")
+            long totalDays = dateRange.size();
+            double dailyConsomation = consumption.getValue() / totalDays;
+            dateRange.forEach(date ->
+                    System.out.println("On " + date + ", daily consomtion is " + dailyConsomation + " mg")
             );
         });
     }
 
+    public void generateWeeklyConsomationReport(int userId) throws SQLException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
+
+        List<Consomation> consumptions = consomationRepository.getUserConsomations(user);
+
+        if (consumptions.isEmpty()) {
+            System.out.println("No consomation data for user " + user.getName());
+            return;
+        }
+
+        consumptions.forEach(consumption -> {
+            LocalDate startDate = consumption.getStartDate();
+            LocalDate endDate = consumption.getEndDate();
+
+            LocalDate currentStartDate = startDate;
+            while (currentStartDate.isBefore(endDate)) {
+                LocalDate weekEndDate = currentStartDate.plusWeeks(1).minusDays(1);
+                if (weekEndDate.isAfter(endDate)) weekEndDate = endDate;
+
+                List<LocalDate> weeklyRange = DateUtils.dateLitRange(currentStartDate, weekEndDate);
+                long totalDays = weeklyRange.size();
+                double weeklyConsomation = consumption.getValue() / (double) totalDays;
+
+                System.out.println("From " + currentStartDate + " to " + weekEndDate + ", weekly consomation is " + weeklyConsomation + " mg");
+
+                currentStartDate = weekEndDate.plusDays(1);
+            }
+        });
+    }
+
+    public void generateMonthlyConsomationReport(int userId) throws SQLException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID " + userId + " does not exist."));
+
+        List<Consomation> consumptions = consomationRepository.getUserConsomations(user);
+
+        if (consumptions.isEmpty()) {
+            System.out.println("No consomation data for user " + user.getName());
+            return;
+        }
+
+        consumptions.forEach(consumption -> {
+            LocalDate startDate = consumption.getStartDate();
+            LocalDate endDate = consumption.getEndDate();
+
+            LocalDate currentStartDate = startDate.withDayOfMonth(1);
+            while (currentStartDate.isBefore(endDate)) {
+                LocalDate monthEndDate = currentStartDate.withDayOfMonth(currentStartDate.lengthOfMonth()).minusDays(1);
+                if (monthEndDate.isAfter(endDate)) monthEndDate = endDate;
+
+                List<LocalDate> monthlyRange = DateUtils.dateLitRange(currentStartDate, monthEndDate);
+                long totalDays = monthlyRange.size();
+                double monthlyConsomation = consumption.getValue() / (double) totalDays;
+
+                System.out.println("From " + currentStartDate + " to " + monthEndDate + ", monthly consomation is " + monthlyConsomation + " mg");
+
+                currentStartDate = monthEndDate.plusDays(1).withDayOfMonth(1);
+            }
+        });
+    }
+    public List<Consomation> getUserConsomations(User user) throws SQLException {
+        return consomationRepository.getUserConsomations(user);
+    }
 
 
 

@@ -23,7 +23,7 @@ public class Main {
         UserRepository userRepository = new UserRepository(DatabaseConnection.getInstance().getConnection());
         UserService userService = new UserService(userRepository);
         ConsomationRepository consomationRepository = new ConsomationRepository(DatabaseConnection.getInstance().getConnection());
-        ConsomationService consomationService = new ConsomationService(userService,consomationRepository);
+        ConsomationService consomationService = new ConsomationService(userService,consomationRepository, connection);
 
         Scanner inp = new Scanner(System.in);
         System.out.println("====CO2eq====");
@@ -224,10 +224,10 @@ public class Main {
                         List<Consomation> consomations = consomationService.getUserConsomations(foundUserDetails.get());
 
                         if (!consomations.isEmpty()) {
-                            consomations.forEach(consomation -> {
-                                if (consomation != null) {
+                            consomations.forEach(consomationN -> {
+                                if (consomationN != null) {
                                     System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-                                    System.out.println(consomation);
+                                    System.out.println(consomationN);
                                     System.out.println("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
                                 } else {
                                     System.out.println("Consomation is null");
@@ -244,7 +244,7 @@ public class Main {
 
                 case 8:
                     System.out.println("Filter Users Exceeding 3000 kg of CO2");
-                    consomationService.calculateConsomationImpact()
+                    consomationService.CalculConsomationImpact()
                             .forEach(user -> System.out.println("ID: " + user.getId() + " Name: " + user.getName() + " Age: " + user.getAge()));
                     break;
 
@@ -281,7 +281,7 @@ public class Main {
                     System.out.println("Enter end date (YYYY-MM-DD):");
                     LocalDate endDateAverage = LocalDate.parse(inp.nextLine());
 
-                    double averageImpact = consomationService.averageConsomationByPeriod(idUserAverage, startDateAverage, endDateAverage);
+                    double averageImpact = consomationService.averageImpactByPeriod(idUserAverage, startDateAverage, endDateAverage);
 
                     System.out.println("Average consomation from " + startDateAverage + " to " + endDateAverage + " : " + averageImpact + " kg CO2");
                     break;
@@ -290,9 +290,19 @@ public class Main {
                     System.out.println("Sort Users by Consomation Impact");
                     List<User> allUsers = userService.afficherUsers();
                     allUsers.stream()
-                            .sorted((u1, u2) -> Double.compare(consomationService.calculateTotalImpact(u2), consomationService.calculateTotalImpact(u1)))
+                            .sorted((u1, u2) -> {
+                                try {
+                                    return Double.compare(consomationService.calculerImpactTotal(u2), consomationService.calculerImpactTotal(u1));
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            })
                             .forEach(user -> {
-                                System.out.println("ID: " + user.getId() + ", Name: " + user.getName() + ", Age: " + user.getAge() + ", Impact: " + consomationService.calculateTotalImpact(user) + " kg CO2");
+                                try {
+                                    System.out.println("ID: " + user.getId() + ", Name: " + user.getName() + ", Age: " + user.getAge() + ", Impact: " + consomationService.calculerImpactTotal(user) + " kg CO2");
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
                             });
                     break;
 
@@ -318,21 +328,21 @@ public class Main {
                                 System.out.println("Enter user ID:");
                                 int userIdDaily = inp.nextInt();
                                 inp.nextLine();
-                                consomationService.dailyConsomationReport(userIdDaily);
+                                consomationService.generateDailyConsomationReport(userIdDaily);
                                 break;
                             case 2:
                                 System.out.println("Weekly Report");
                                 System.out.println("Enter user ID:");
                                 int userIdWeekly = inp.nextInt();
                                 inp.nextLine();
-                                consomationService.weeklyConsomationReport(userIdWeekly);
+                                consomationService.generateWeeklyConsomationReport(userIdWeekly);
                                 break;
                             case 3:
                                 System.out.println("Monthly Report");
                                 System.out.println("Enter user ID:");
                                 int userIdMonthly = inp.nextInt();
                                 inp.nextLine();
-                                consomationService.monthlyConsomationReport(userIdMonthly);
+                                consomationService.generateMonthlyConsomationReport(userIdMonthly);
                                 break;
                             case 4:
                                 System.out.println("Exiting report menu.");
